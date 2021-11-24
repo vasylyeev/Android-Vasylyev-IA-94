@@ -1,57 +1,46 @@
 package com.example.lab1
 
-import android.graphics.Typeface
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.*
+import android.util.Log
+import android.widget.Button
+import android.widget.Toast
+import com.example.lab1.fragments.InputFragment
+import com.example.lab1.fragments.OutputFragment
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), InputFragment.OnTextSent {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val textView: TextView = findViewById(R.id.textView)
-        val editText: EditText = findViewById(R.id.ediText)
-        val sansSerifButton: RadioButton = findViewById(R.id.radioButton1)
-        val monospaceButton: RadioButton = findViewById(R.id.radioButton2)
-        val serifButton: RadioButton = findViewById(R.id.radioButton3)
-        val okButton: Button = findViewById(R.id.button1)
-        val cancelButton: Button = findViewById(R.id.button2)
+        val inputFragment = InputFragment()
+        supportFragmentManager.beginTransaction().replace(R.id.fragment_container, inputFragment)
+            .commit()
+    }
 
-        okButton.setOnClickListener {
-            val text = editText.text.toString()
-            if (text.isNotEmpty()) {
-                var font: Typeface = Typeface.DEFAULT
+    override fun sendData(
+        editTextInput: String,
+        sansSerifButtonChecked: Boolean,
+        monospaceButtonChecked: Boolean,
+        serifButtonChecked: Boolean
+    ) {
+        val outputFragment = OutputFragment()
+        val bundle = Bundle()
 
-                when {
-                    sansSerifButton.isChecked -> {
-                        font = Typeface.SANS_SERIF
-                    }
-                    monospaceButton.isChecked -> {
-                        font = Typeface.MONOSPACE
-                    }
-                    serifButton.isChecked -> {
-                        font = Typeface.SERIF
-                    }
-                }
+        if (editTextInput.isNotEmpty()) {
+            bundle.putString("editTextInput", editTextInput)
+            bundle.putBoolean("sansSerifButtonChecked", sansSerifButtonChecked)
+            bundle.putBoolean("monospaceButtonChecked", monospaceButtonChecked)
+            bundle.putBoolean("serifButtonChecked", serifButtonChecked)
 
-                textView.text = text
-                textView.typeface = font
-            } else {
-                textView.text = ""
-                Toast.makeText(applicationContext, "Input field is empty", Toast.LENGTH_SHORT)
-                    .show()
-            }
+            outputFragment.arguments = bundle
+
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragment_container, outputFragment).addToBackStack(null).commit()
+
+        } else {
+            Toast.makeText(applicationContext, "Input field empty!", Toast.LENGTH_SHORT).show()
         }
-
-        cancelButton.setOnClickListener {
-            textView.text = ""
-            editText.text.clear()
-            sansSerifButton.isChecked = true
-            monospaceButton.isChecked = false
-            serifButton.isChecked = false
-        }
-
     }
 }

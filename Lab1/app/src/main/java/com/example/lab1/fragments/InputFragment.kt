@@ -9,13 +9,15 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.RadioButton
-import android.widget.Toast
 import com.example.lab1.R
 import java.lang.ClassCastException
+import android.content.Intent
+import com.example.lab1.InternalStorageActivity
 
 class InputFragment : Fragment() {
 
     private lateinit var onTextSentListener: OnTextSent
+    private lateinit var onShowStorage: ShowStorage
 
     interface OnTextSent {
         fun sendData(
@@ -26,15 +28,20 @@ class InputFragment : Fragment() {
         )
     }
 
+    interface ShowStorage {
+        fun show()
+    }
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
 
         try {
             onTextSentListener = context as OnTextSent
+            onShowStorage = context as ShowStorage
         } catch (e: ClassCastException) {
             throw ClassCastException(
                 activity.toString()
-                        + " must implement onTextSent"
+                        + " must implement onTextSent and ShowStorage"
             )
         }
     }
@@ -43,7 +50,6 @@ class InputFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_input, container, false)
     }
 
@@ -56,6 +62,7 @@ class InputFragment : Fragment() {
         val serifButton: RadioButton = view?.findViewById(R.id.radioButton3) as RadioButton
         val okButton: Button = view?.findViewById(R.id.button1) as Button
         val cancelButton: Button = view?.findViewById(R.id.button2) as Button
+        val showStorageButton: Button = view?.findViewById(R.id.show_storage_button) as Button
 
         var sansSerifButtonChecked = false
         var monospaceButtonChecked = false
@@ -89,6 +96,14 @@ class InputFragment : Fragment() {
             monospaceButton.isChecked = false
             serifButton.isChecked = false
         }
+
+        showStorageButton.setOnClickListener {
+            showStorage()
+        }
+    }
+
+    private fun showStorage() {
+        onShowStorage.show()
     }
 
     private fun passData(
